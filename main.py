@@ -13,6 +13,7 @@ from requests import exceptions as r_exceptions
 from retry import retry
 from twelvedata import exceptions
 from twelvedata import TDClient
+from urllib3 import exceptions as url_exceptions
 
 dotenv.load_dotenv(".env.paper")
 
@@ -67,7 +68,13 @@ def get_stock_price(symbol: str) -> float:
     return float(price["price"])
 
 
-@retry(r_exceptions.ConnectionError, delay=1, backoff=2, max_delay=4, tries=5)
+@retry(
+    (r_exceptions.ConnectionError, url_exceptions.NameResolutionError),
+    delay=1,
+    backoff=2,
+    max_delay=4,
+    tries=5,
+)
 def get_quote(symbol: str) -> float:
     logger.debug(f"Getting quote for {symbol}")
     quote = {}
