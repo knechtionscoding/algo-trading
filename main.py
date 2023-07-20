@@ -10,15 +10,19 @@ from alpaca.trading.requests import MarketOrderRequest
 from alpaca.trading.enums import OrderSide, TimeInForce
 import dotenv
 
+dotenv.load_dotenv(".env.paper")
+
+logging.basicConfig()
+
 # Create a custom logger
 logger = logging.getLogger("algo-trader")
+
 hdlr = logging.StreamHandler()
 # fhdlr = logging.FileHandler("myapp.log")
 logger.addHandler(hdlr)
 # logger.addHandler(fhdlr)
-logger.setLevel(level=os.environ.get("LOG_LEVEL", "INFO").upper())
+logger.setLevel(level=os.environ.get("LOG_LEVEL", "DEBUG").upper())
 
-dotenv.load_dotenv(".env.paper")
 
 # Initialize TwelveData client - apikey parameter is requiered
 td = TDClient(apikey=os.getenv("TD_API_KEY"))
@@ -53,12 +57,13 @@ def get_stock_price(symbol: str) -> float:
     """
     price = td.price(symbol=symbol).as_json()
     # logger.info(prices)
-    print(price)
+    logger.debug(price)
     return float(price["price"])
 
 
 def get_quote(symbol: str) -> float:
-    logger.debug(f"getting quote for {symbol}")
+    logger.debug(f"Getting quote for {symbol}")
+    quote = {}
     try:
         quote = td.quote(symbol=symbol).as_json()
     except exceptions.TwelveDataError:
@@ -69,6 +74,12 @@ def get_quote(symbol: str) -> float:
 
 
 def calculate_should_buy(quote: dict, price: float) -> bool:
+    logger.debug(
+        f"Current percentage off of 52 week high {price / float(quote['fifty_two_week']['high'])}"
+    )
+    logger.debug(
+        f"Current percentage off of open price: {price / float(quote['open'])}"
+    )
     if (
         price / float(quote["fifty_two_week"]["high"]) > 0.60
         and price / float(quote["open"]) < 0.95
@@ -92,6 +103,7 @@ def calculate_num_shares_to_buy(price, unit_size=10):
 
 def buy_shares(symbol: str, quantity: float) -> bool:
     # preparing orders
+    logger.debug(f"Buying {quantity} shares of {symbol}")
     market_order_data = MarketOrderRequest(
         symbol=symbol, qty=quantity, side=OrderSide.BUY, time_in_force=TimeInForce.DAY
     )
@@ -104,7 +116,9 @@ def run_algo(symbol):
     logger.debug(f"Running Algorithm for {symbol}")
 
     quote = get_quote(symbol)
+    logger.debug(f"{quote=}")
     price = get_stock_price(symbol)
+    logger.debug(f"{price}")
     if calculate_should_buy(quote=quote, price=price):
         logger.info(f"We should buy: {symbol}")
         quantity = calculate_num_shares_to_buy(price)
@@ -120,22 +134,23 @@ def sell_shares(symbol: str, quantity: float):
 
 
 if __name__ == "__main__":
-    symbols = []
-    symbols = get_stock_symbols(symbols)
-    logger.debug(f"{symbols=}")
+    while True:
+        symbols = []
+        symbols = get_stock_symbols(symbols)
+        logger.debug(f"{symbols=}")
 
-    group = len(symbols) // 5
-    logger.debug(f"group length {group}")
+        group = len(symbols) // 5
+        logger.debug(f"group length {group}")
 
-    for symbol in symbols[:group]:
-        run_algo(symbol)
-    for symbol in symbols[group : group * 2]:
-        run_algo(symbol)
-    for symbol in symbols[group * 2 : group * 3]:
-        run_algo(symbol)
-    for symbol in symbols[group * 3 : group * 4]:
-        run_algo(symbol)
-    for symbol in symbols[group * 4 : group * 5]:
-        run_algo(symbol)
+        for symbol in symbols[:group]:
+            run_algo(symbol)
+        for symbol in symbols[group : group * 2]:
+            run_algo(symbol)
+        for symbol in symbols[group * 2 : group * 3]:
+            run_algo(symbol)
+        for symbol in symbols[group * 3 : group * 4]:
+            run_algo(symbol)
+        for symbol in symbols[group * 4 : group * 5]:
+            run_algo(symbol)
 
-    should_we_sell()
+        should_we_sell()
