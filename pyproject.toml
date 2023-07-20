@@ -5,7 +5,6 @@ description = "Hans brilliant attempt at algorithmic trading"
 authors = ["Hans Knecht <contact@hans-knecht.com>"]
 license = "All Rights Reserved"
 readme = "README.md"
-packages = [{include = "algo_trading"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
