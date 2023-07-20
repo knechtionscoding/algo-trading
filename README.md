@@ -25,7 +25,7 @@ Fortune 1000 company
 
 - python
 - poetry
-- API keys for IBKR and Twelvedata
+- API keys for ALPACA and Twelvedata
 
 
 ### Notable Dependencies
