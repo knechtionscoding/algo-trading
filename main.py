@@ -27,11 +27,13 @@ logger.setLevel(level=os.environ.get("LOG_LEVEL", "DEBUG").upper())
 
 
 # Initialize TwelveData client - apikey parameter is requiered
-twelve_data = TDClient(apikey=os.getenv("TD_API_KEY"))
+twelve_data = TDClient(apikey=os.environ.get("TD_API_KEY", "FAKE-KEY"))
 
 # paper=True enables paper trading
 alpaca_client = TradingClient(
-    os.getenv("ALPACA_API_KEY"), os.getenv("ALPACA_SECRET_KEY"), paper=True
+    os.environ.get("ALPACA_API_KEY", "FAKE-KEY"),
+    os.environ.get("ALPACA_SECRET_KEY", "FAKE-KEY"),
+    paper=True,
 )
 
 
@@ -39,7 +41,7 @@ def get_stock_symbols(symbols: list) -> list:
     """
     Gets the S&P 500 stock symbols from a CSV file
     """
-    with open(os.getenv("CONSTITUENT_FILE"), mode="r") as csv_file:
+    with open(os.environ.get("CONSTITUENT_FILE"), mode="r") as csv_file:
         csv_reader = csv.DictReader(csv_file)
         line_count = 0
         for row in csv_reader:
