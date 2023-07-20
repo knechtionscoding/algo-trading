@@ -92,7 +92,7 @@ def calculate_should_buy(quote: dict, price: float) -> bool:
 def should_we_sell():
     positions = td.get_all_positions()
     for position in positions:
-        if position.unrealized_plpc > 0.20:
+        if position.unrealized_plpc > 0.30:
             logger.debug(f"We should sell {position.qty} of {position.symbol}")
             sell_shares(position.symbol, position.qty)
 
