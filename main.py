@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-
-from twelvedata import TDClient, exceptions
-import time
-import os
-import logging
 import csv
-from alpaca.trading.client import TradingClient
-from alpaca.trading.requests import MarketOrderRequest
-from alpaca.trading.enums import OrderSide, TimeInForce
+import logging
+import os
+import time
+
 import dotenv
+from alpaca.trading.client import TradingClient
+from alpaca.trading.enums import OrderSide
+from alpaca.trading.enums import TimeInForce
+from alpaca.trading.requests import MarketOrderRequest
+from twelvedata import exceptions
+from twelvedata import TDClient
 
 dotenv.load_dotenv(".env.paper")
 
