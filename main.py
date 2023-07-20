@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-
-from twelvedata import TDClient, exceptions
-import time
-import os
-import logging
 import csv
-from alpaca.trading.client import TradingClient
-from alpaca.trading.requests import MarketOrderRequest
-from alpaca.trading.enums import OrderSide, TimeInForce
+import logging
+import os
+import time
+
 import dotenv
+from alpaca.trading.client import TradingClient
+from alpaca.trading.enums import OrderSide
+from alpaca.trading.enums import TimeInForce
+from alpaca.trading.requests import MarketOrderRequest
+from twelvedata import exceptions
+from twelvedata import TDClient
 
 dotenv.load_dotenv(".env.paper")
 
@@ -25,11 +27,13 @@ logger.setLevel(level=os.environ.get("LOG_LEVEL", "DEBUG").upper())
 
 
 # Initialize TwelveData client - apikey parameter is requiered
-td = TDClient(apikey=os.getenv("TD_API_KEY"))
+twelve_data = TDClient(apikey=os.environ.get("TD_API_KEY", "FAKE-KEY"))
 
 # paper=True enables paper trading
-trading_client = TradingClient(
-    os.getenv("ALPACA_API_KEY"), os.getenv("ALPACA_SECRET_KEY"), paper=True
+alpaca_client = TradingClient(
+    os.environ.get("ALPACA_API_KEY", "FAKE-KEY"),
+    os.environ.get("ALPACA_SECRET_KEY", "FAKE-KEY"),
+    paper=True,
 )
 
 
@@ -37,7 +41,7 @@ def get_stock_symbols(symbols: list) -> list:
     """
     Gets the S&P 500 stock symbols from a CSV file
     """
-    with open(os.getenv("CONSTITUENT_FILE"), mode="r") as csv_file:
+    with open(os.environ.get("CONSTITUENT_FILE"), mode="r") as csv_file:
         csv_reader = csv.DictReader(csv_file)
         line_count = 0
         for row in csv_reader:
@@ -55,7 +59,7 @@ def get_stock_price(symbol: str) -> float:
     """
     Gets stock prices from TwelveData
     """
-    price = td.price(symbol=symbol).as_json()
+    price = twelve_data.price(symbol=symbol).as_json()
     # logger.info(prices)
     logger.debug(price)
     return float(price["price"])
@@ -65,7 +69,7 @@ def get_quote(symbol: str) -> float:
     logger.debug(f"Getting quote for {symbol}")
     quote = {}
     try:
-        quote = td.quote(symbol=symbol).as_json()
+        quote = twelve_data.quote(symbol=symbol).as_json()
     except exceptions.TwelveDataError:
         logger.debug(f"API Error getting quote for {symbol}")
         time.sleep(60)
@@ -90,15 +94,16 @@ def calculate_should_buy(quote: dict, price: float) -> bool:
 
 
 def should_we_sell():
-    positions = td.get_all_positions()
+    positions = alpaca_client.get_all_positions()
     for position in positions:
-        if position.unrealized_plpc > 0.30:
+        logger.debug(float(position.unrealized_plpc))
+        if float(position.unrealized_plpc) > 0.30:
             logger.debug(f"We should sell {position.qty} of {position.symbol}")
             sell_shares(position.symbol, position.qty)
 
 
 def calculate_num_shares_to_buy(price, unit_size=10):
-    return price / unit_size
+    return unit_size / price
 
 
 def buy_shares(symbol: str, quantity: float) -> bool:
@@ -109,7 +114,7 @@ def buy_shares(symbol: str, quantity: float) -> bool:
     )
 
     # Market order
-    trading_client.submit_order(order_data=market_order_data)
+    alpaca_client.submit_order(order_data=market_order_data)
 
 
 def run_algo(symbol):
@@ -130,7 +135,7 @@ def sell_shares(symbol: str, quantity: float):
     market_order_data = MarketOrderRequest(
         symbol=symbol, qty=quantity, side=OrderSide.SELL, time_in_force=TimeInForce.DAY
     )
-    trading_client.submit_order(order_data=market_order_data)
+    alpaca_client.submit_order(order_data=market_order_data)
 
 
 if __name__ == "__main__":
@@ -154,3 +159,5 @@ if __name__ == "__main__":
             run_algo(symbol)
 
         should_we_sell()
+
+        time.sleep(300)

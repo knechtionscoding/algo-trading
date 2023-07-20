@@ -1,5 +1,8 @@
-import main
+from __future__ import annotations
+
 import pytest
+
+import main
 
 
 @pytest.mark.parametrize(
