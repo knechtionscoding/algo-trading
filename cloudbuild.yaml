@@ -1,0 +1,11 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "us-east4-docker.pkg.dev/quick-guru-393523/algo-trading:0.1.0",
+        ".",
+      ]
+images:
+  - "us-east4-docker.pkg.dev/quick-guru-393523/algo-trading:0.1.0"
