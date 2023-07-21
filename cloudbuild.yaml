@@ -4,8 +4,8 @@ steps:
       [
         "build",
         "-t",
-        "us-east4-docker.pkg.dev/quick-guru-393523/algo-trading:0.1.0",
+        "us-east4-docker.pkg.dev/quick-guru-393523/algo-trading:$COMMIT_SHA",
         ".",
       ]
 images:
-  - "us-east4-docker.pkg.dev/quick-guru-393523/algo-trading:0.1.0"
+  - "us-east4-docker.pkg.dev/quick-guru-393523/algo-trading:$COMMIT_SHA"
