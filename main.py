@@ -151,25 +151,25 @@ def sell_shares(symbol: str, quantity: float):
 
 if __name__ == "__main__":
     while True:
-        # symbols = []
-        # symbols = get_stock_symbols(symbols)
-        # logger.debug(f"{symbols=}")
+        symbols = []
+        symbols = get_stock_symbols(symbols)
+        logger.debug(f"{symbols=}")
 
-        # group = len(symbols) // 5
-        # logger.debug(f"group length {group}")
+        group = len(symbols) // 5
+        logger.debug(f"group length {group}")
 
-        # for symbol in symbols[:group]:
-        #     run_algo(symbol)
-        # for symbol in symbols[group : group * 2]:
-        #     run_algo(symbol)
-        # for symbol in symbols[group * 2 : group * 3]:
-        #     run_algo(symbol)
-        # for symbol in symbols[group * 3 : group * 4]:
-        #     run_algo(symbol)
-        # for symbol in symbols[group * 4 : group * 5]:
-        #     run_algo(symbol)
+        for symbol in symbols[:group]:
+            run_algo(symbol)
+        for symbol in symbols[group : group * 2]:
+            run_algo(symbol)
+        for symbol in symbols[group * 2 : group * 3]:
+            run_algo(symbol)
+        for symbol in symbols[group * 3 : group * 4]:
+            run_algo(symbol)
+        for symbol in symbols[group * 4 : group * 5]:
+            run_algo(symbol)
 
-        # should_we_sell()
+        should_we_sell()
 
         print(alpaca_client.get_clock().is_open)
         if not alpaca_client.get_clock().is_open:
