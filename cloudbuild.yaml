@@ -3,6 +3,8 @@ steps:
     args:
       [
         "build",
+        "-f",
+        "Containerfile",
         "-t",
         "us-east4-docker.pkg.dev/quick-guru-393523/algo-trading:$COMMIT_SHA",
         ".",
