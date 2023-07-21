@@ -6,8 +6,8 @@ steps:
         "-f",
         "Containerfile",
         "-t",
-        "us-docker.pkg.dev/quick-guru-393523/algo-trading:$COMMIT_SHA",
+        "us-docker.pkg.dev/quick-guru-393523/algo-trading/sp500:$COMMIT_SHA",
         ".",
       ]
 images:
-  - "us-docker.pkg.dev/quick-guru-393523/algo-trading:$COMMIT_SHA"
+  - "us-docker.pkg.dev/quick-guru-393523/algo-trading/sp500:$COMMIT_SHA"
