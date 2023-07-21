@@ -108,7 +108,7 @@ def should_we_sell():
     for position in positions:
         logger.debug(float(position.unrealized_plpc))
         if float(position.unrealized_plpc) > 0.30:
-            logger.debug(f"We should sell {position.qty} of {position.symbol}")
+            logger.info(f"We should sell {position.qty} of {position.symbol}")
             sell_shares(position.symbol, position.qty)
 
 
@@ -118,7 +118,7 @@ def calculate_num_shares_to_buy(price, unit_size=10):
 
 def buy_shares(symbol: str, quantity: float) -> bool:
     # preparing orders
-    logger.debug(f"Buying {quantity} shares of {symbol}")
+    logger.info(f"Buying {quantity} shares of {symbol}")
     market_order_data = MarketOrderRequest(
         symbol=symbol, qty=quantity, side=OrderSide.BUY, time_in_force=TimeInForce.DAY
     )
