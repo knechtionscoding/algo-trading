@@ -14,6 +14,7 @@ Fortune 1000 company
 
 - Drop of 5%+ in a single trading day
 - No more than 40% off All Time high
+- Have we purchased this stock in the last 1 day
 
 #### Sell
 
@@ -25,7 +26,7 @@ Fortune 1000 company
 
 - python
 - poetry
-- API keys for ALPACA and Twelvedata
+- API keys for ALPACA and Twelvedata in environment variables.
 
 
 ### Notable Dependencies
@@ -69,3 +70,4 @@ Fortune 1000 company
         "extended_timestamp": 1649845281
       }
     ```
+2. Uses [Alpaca](https://github.com/alpacahq/alpaca-py)
