@@ -172,8 +172,10 @@ def have_we_bought_recently(symbol: str) -> bool:
 if __name__ == "__main__":
     while True:
         if not alpaca_client.get_clock().is_open:
+            logger.warning("Market isn't open. Exiting")
             sys.exit()
 
+        logger.info("Market is open.")
         symbols = []
         symbols = get_stock_symbols(symbols)
         logger.debug(f"{symbols=}")
