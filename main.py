@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import csv
+import datetime
 import logging
 import os
 import sys
@@ -9,6 +10,7 @@ import dotenv
 from alpaca.trading.client import TradingClient
 from alpaca.trading.enums import OrderSide
 from alpaca.trading.enums import TimeInForce
+from alpaca.trading.requests import GetOrdersRequest
 from alpaca.trading.requests import MarketOrderRequest
 from requests import exceptions as r_exceptions
 from retry import retry
@@ -135,7 +137,9 @@ def run_algo(symbol):
     logger.debug(f"{quote=}")
     price = get_stock_price(symbol)
     logger.debug(f"{price}")
-    if calculate_should_buy(quote=quote, price=price):
+    if not have_we_bought_recently(symbol) and calculate_should_buy(
+        quote=quote, price=price
+    ):
         logger.info(f"We should buy: {symbol}")
         quantity = calculate_num_shares_to_buy(price)
         logger.info(f"Buying {quantity} shares of {symbol}")
@@ -149,8 +153,27 @@ def sell_shares(symbol: str, quantity: float):
     alpaca_client.submit_order(order_data=market_order_data)
 
 
+def have_we_bought_recently(symbol: str) -> bool:
+    order = GetOrdersRequest(status="all", symbols=[symbol])
+    logging.debug(f"{order=}")
+    orders = alpaca_client.get_orders(order)
+    if orders:
+        difference = datetime.datetime.now(datetime.timezone.utc) - orders[0].created_at
+        if difference.days <= 1:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+# TODO: Add something that checks for orders in the last day for a particular symbol so we don't just keep buying the same thing over and over
+
 if __name__ == "__main__":
     while True:
+        if not alpaca_client.get_clock().is_open:
+            sys.exit()
+
         symbols = []
         symbols = get_stock_symbols(symbols)
         logger.debug(f"{symbols=}")
@@ -172,7 +195,5 @@ if __name__ == "__main__":
         should_we_sell()
 
         print(alpaca_client.get_clock().is_open)
-        if not alpaca_client.get_clock().is_open:
-            sys.exit()
 
         time.sleep(300)
